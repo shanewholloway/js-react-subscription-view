@@ -1,7 +1,7 @@
 {
   "name": "react-subscription-view",
   "version": "0.0.1",
-  "description": "HOC render-function for subscribe() compatibile objects",
+  "description": "HOC render-function for subscribe() compatible objects",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
   "homepage": "https://github.com/shanewholloway/js-react-subscription-view#readme",
