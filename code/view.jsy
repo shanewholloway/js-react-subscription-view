@@ -1,0 +1,30 @@
+import subscribeToState from './subscriptions.jsy'
+
+export default withSubscribedView
+export function withSubscribedView(React, Component) ::
+  const createElem = React.createElement
+  if null == Component ::
+    Component = React.PureComponent
+
+  class SubscribedView extends Component ::
+    componentWillMount() ::
+      const {current, unsubscribe} = 
+        subscribeToState @ this.props.of,
+          current => this.setState({current})
+      this.state.of = current
+      this.unsubscribe = unsubscribe
+
+    componentWillUnmount() ::
+      if this.unsubscribe ::
+        this.unsubscribe()
+
+    render() ::
+      this.props.render @ this.state.of
+
+  return @{} ObjectFunctionalView
+    render: renderWithState
+    renderWithState
+
+  function renderWithState(of, render) ::
+    return createElem @ ObjectFunctionalView, {of, render}
+

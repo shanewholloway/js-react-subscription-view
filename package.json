@@ -1,0 +1,42 @@
+{
+  "name": "react-subscription-view",
+  "version": "0.0.1",
+  "description": "HOC render-function for subscribe() compatibile objects",
+  "license": "BSD-2-Clause",
+  "author": "Shane Holloway <shane.holloway@ieee.org>",
+  "homepage": "https://github.com/shanewholloway/js-react-subscription-view#readme",
+  "bugs": {
+    "url": "https://github.com/shanewholloway/js-react-subscription-view/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shanewholloway/js-react-subscription-view.git"
+  },
+  "keywords": [],
+  "files": [
+    "cjs/",
+    "esm/",
+    "umd/"
+  ],
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "browser": "umd/react-subscription-view.min.js",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-jsy": "^0.10.1",
+    "rollup": "^0.56.2",
+    "rollup-plugin-jsy-babel": "^1.0.1",
+    "rollup-plugin-uglify": "^3.0.0",
+    "uglify-es": "^3.3.9"
+  },
+  "babel": {
+    "presets": "jsy/lean"
+  },
+  "scripts": {
+    "clean": "rm cjs/* esm/* umd/*",
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "pretest": "npm -s run build",
+    "test": "true"
+  }
+}

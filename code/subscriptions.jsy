@@ -1,0 +1,51 @@
+
+export const subscribeToState = bindSubscriptionState(nextResolveTick)
+export default subscribeToState
+
+export function nextResolveTick(cb) :: Promise.resolve().then(cb)
+
+export function bindSubscriptionState(nextTick) ::
+  return subscribeToState
+
+  function subscribeToState(hashOrTarget, cb_setCurrent) ::
+    let q = null
+    const unwind = []
+
+    if 'function' === typeof hashOrTarget.subscribe ::
+      let current
+      unwind.push @
+        hashOrTarget.subscribe @ v => ::
+          current[attr] = v
+          if null === q ::
+            q = resolveNext(current)
+
+      return @{} current, unsubscribe
+
+    else ::
+      const current={}
+      for const attr of Object.keys(hashOrTarget) ::
+        const sub = hashOrTarget[attr]
+        if null == sub || 'function' !== typeof sub.subscribe ::
+          throw new TypeError @ `Subscription "${attr}" does not have a subscribe() function`
+
+        unwind.push @
+          sub.subscribe @ v => ::
+            current[attr] = v
+            if null === q ::
+              q = resolveNext(current)
+
+      return @{} current, unsubscribe
+
+    function unsubscribe() ::
+      q = null
+      while unwind.length ::
+        const unsub = unwind.pop()
+        unsub()
+
+    // use promise resolution to debounce updates
+    function resolveNext(current) ::
+      return nextTick @=> ::
+        if null !== q ::
+          q = null
+          cb_setCurrent(current)
+
