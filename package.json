@@ -1,6 +1,6 @@
 {
   "name": "react-subscription-view",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "HOC render-function for subscribe() compatible objects",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -14,6 +14,8 @@
   },
   "keywords": [],
   "files": [
+    "test.html",
+    "test/",
     "cjs/",
     "esm/",
     "umd/"

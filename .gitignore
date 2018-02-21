@@ -1,4 +1,5 @@
 package-lock.json
+*/*.umd.js
 dist/
 cjs/
 esm/

@@ -1,0 +1,64 @@
+'use strict';
+const React = window.React
+const h = React.createElement
+const h_fragment = h.bind(React, React.Fragment, {})
+
+const reactSubscribedView = window['react-subscription-view']
+const viewOf = reactSubscribedView(React)
+
+import createExample from './obj_fn_instances.jsy'
+//import createExample from './obj_fn_proto.jsy'
+
+
+const obs_a = createExample @: name: 'a'
+const obs_b = createExample @: name: 'b'
+const obs_c = createExample @: name: 'c', counter:100000
+
+
+obs_a.autoinc(1, 1000)
+obs_b.autoinc(10, 1300)
+obs_c.autoinc(100, 1700)
+
+
+const NamedPartAB = ({a, b}) =>
+  viewOf @ {a, b}, ({a, b}) =>
+    h_fragment @
+      h @ 'li', null, 'as named ', a.format()
+      h @ 'li', null, 'as named ', b.format()
+      h @ 'br'
+
+
+const ListPartAB = ({a, b}) =>
+  viewOf @ [a, b], ([a, b]) =>
+    h_fragment @
+      h @ 'li', null, 'as list ', a.format()
+      h @ 'li', null, 'as list ', b.format()
+      h @ 'br'
+
+
+const ArgsPartAB = ({a, b}) =>
+  viewOf @ a, b, (a, b) =>
+    h_fragment @
+      h @ 'li', null, 'as arg ', a.format()
+      h @ 'li', null, 'as arg ', b.format()
+      h @ 'br'
+
+
+const PartC = ({c}) =>
+  viewOf @ c, c =>
+    h @ 'li', null,
+      h @ 'strong', null, c.format()
+
+
+const App = ({a,b,c}) =>
+  h_fragment @
+    h @ 'ul', null,
+      h @ NamedPartAB, {a,b}
+      h @ ListPartAB, {a,b}
+      h @ ArgsPartAB, {a,b}
+      h @ PartC, {c}
+
+ReactDOM.render @
+  h @ App, @{} a: obs_a, b: obs_b, c: obs_c
+  window.main
+

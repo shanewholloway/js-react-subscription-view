@@ -7,34 +7,23 @@ export function nextResolveTick(cb) :: Promise.resolve().then(cb)
 export function bindSubscriptionState(nextTick) ::
   return subscribeToState
 
-  function subscribeToState(hashOrTarget, cb_setCurrent) ::
+  function subscribeToState(target, setCurrent) ::
     let q = null
     const unwind = []
+    const kind = Array.isArray(target) ? 'list'
+      : 'function' !== typeof target.subscribe
+        ? 'hash' : 'one'
 
-    if 'function' === typeof hashOrTarget.subscribe ::
-      let current
-      unwind.push @
-        hashOrTarget.subscribe @ v => ::
-          current[attr] = v
-          if null === q ::
-            q = resolveNext(current)
+    const initial = 'one' === kind
+        ? subscribeOne @ target, unwind, resolveNext
+        : subscribeMany @ target, unwind, resolveNext
 
-      return @{} current, unsubscribe
+    var tip = initial
+    const self = @{} kind, initial, update, unsubscribe, setCurrent
+    return self
 
-    else ::
-      const current={}
-      for const attr of Object.keys(hashOrTarget) ::
-        const sub = hashOrTarget[attr]
-        if null == sub || 'function' !== typeof sub.subscribe ::
-          throw new TypeError @ `Subscription "${attr}" does not have a subscribe() function`
-
-        unwind.push @
-          sub.subscribe @ v => ::
-            current[attr] = v
-            if null === q ::
-              q = resolveNext(current)
-
-      return @{} current, unsubscribe
+    function update() ::
+      self.setCurrent(tip)
 
     function unsubscribe() ::
       q = null
@@ -43,9 +32,39 @@ export function bindSubscriptionState(nextTick) ::
         unsub()
 
     // use promise resolution to debounce updates
-    function resolveNext(current) ::
-      return nextTick @=> ::
-        if null !== q ::
-          q = null
-          cb_setCurrent(current)
+    function resolveNext(cur) ::
+      if null !== q ::
+        q = tip = cur
+        return
 
+      q = tip = cur
+      nextTick @=> ::
+        if null !== q ::
+          const tip = q
+          q = null
+          self.setCurrent(tip)
+
+function subscribeOne(target, unwind, resolveNextTick) ::
+  let tip
+  unwind.push @
+    target.subscribe @ v => ::
+      tip = v
+      resolveNextTick(tip)
+
+  return tip
+
+function subscribeMany(many, unwind, resolveNextTick) ::
+  const tip = Array.isArray(many) ? [] : {}
+
+  for const key of Object.keys(many) ::
+    const sub = many[key]
+
+    if null == sub || 'function' !== typeof sub.subscribe ::
+      throw new TypeError @ `Subscription "${key}" does not have a subscribe() function`
+
+    unwind.push @
+      sub.subscribe @ v => ::
+        tip[key] = v
+        resolveNextTick(tip)
+
+  return tip

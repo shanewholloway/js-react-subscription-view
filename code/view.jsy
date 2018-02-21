@@ -7,24 +7,79 @@ export function withSubscribedView(React, Component) ::
     Component = React.PureComponent
 
   class SubscribedView extends Component ::
+    constructor() ::
+      super()
+      this.state = {}
+
     componentWillMount() ::
-      const {current, unsubscribe} = 
-        subscribeToState @ this.props.of,
-          current => this.setState({current})
-      this.state.of = current
-      this.unsubscribe = unsubscribe
+      const props = this.props
+      const sub = subscribeToState @
+        props.args || props.of
+
+      this.unsubscribe = sub.unsubscribe
+      console.log @ sub
+      this['_init_sub_'+sub.kind](sub, props)
+      sub.update()
+
+    _init_sub_hash(sub, props) ::
+      sub.setCurrent = tip =>
+        this.setState(tip)
+
+    _init_sub_one(sub, props) ::
+      this.render = this.render_one
+
+      sub.setCurrent = tip =>
+        this.setState @: tip
+
+    _init_sub_list(sub, props) ::
+      this.setState @:
+        tip: sub.initial.slice()
+
+      this.render = props.args
+        ? this.render_args
+        : this.render_one
+
+      sub.setCurrent = lst =>
+        this.setState @ ({tip}) =>
+          is_list_changed(tip, lst)
+            ? @{} tip: lst.slice()
+            : null
+
 
     componentWillUnmount() ::
       if this.unsubscribe ::
         this.unsubscribe()
 
     render() ::
-      this.props.render @ this.state.of
+      return this.props.render @
+        this.state
+    render_one() ::
+      return this.props.render @
+        this.state.tip
+    render_args() ::
+      return this.props.render @
+        ... this.state.tip
 
-  return @{} ObjectFunctionalView
+  return Object.assign @ renderWithState, @{}
+    SubscribedView
     render: renderWithState
     renderWithState
 
-  function renderWithState(of, render) ::
-    return createElem @ ObjectFunctionalView, {of, render}
+  function renderWithState(...args) ::
+    const props = @{} render: args.pop()
+    if 1 === args.length ::
+      props.of = args[0]
+    else props.args = args
+    return createElem @ SubscribedView, props
+
+function is_list_changed(a, b) ::
+  if a === b :: return false
+
+  const len = a.length
+  if b.length !== len :: return true
+
+  for let i=0; i<len; i++ ::
+    if a[i] !== b[i] ::
+      return true
+  return false
 

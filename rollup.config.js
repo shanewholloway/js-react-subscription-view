@@ -27,5 +27,10 @@ export default [
       output: { file: pkg.browser, format: 'umd', name:'react-subscription-view' },
       external: [], plugins: prod_plugins },
 
+
+  { input: 'test/browser/test.jsy',
+    output: { file: `test/browser/test.umd.js`, format: 'iife' },
+    external, plugins },
+
 ].filter(e => e)
 
