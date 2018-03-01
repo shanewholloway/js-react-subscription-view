@@ -17,7 +17,6 @@ export function withSubscribedView(React, Component) ::
         props.args || props.of
 
       this.unsubscribe = sub.unsubscribe
-      console.log @ sub
       this['_init_sub_'+sub.kind](sub, props)
       sub.update()
 
